@@ -38,8 +38,9 @@ class Tapper:
         
         self.profile = profile
         
-        if self.profile.exchange_id is None:
-            status = await self.web_client.select_exchange(exchange_id="bybit")
+        if self.profile.exchange_id == "hamster":
+            await self.web_client.select_exchange(exchange_id="bybit")
+            status = await self.web_client.check_task(task_id="select_exchange")
             if status is True:
                 logger.success(f"{self.session_name} | Successfully selected exchange <y>Bybit</y>")
 
