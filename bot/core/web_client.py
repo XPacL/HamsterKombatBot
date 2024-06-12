@@ -128,7 +128,7 @@ class WebClient:
         return list(map(lambda d: AirDropTask(data=d), response['airdropTasks']))
 
     async def make_request(self, request: Requests, json: dict | None = None) -> dict:
-        response = await self.http_client.post(url=request.value(),
+        response = await self.http_client.post(url=request,
                                                headers=create_headers(json),
                                                json=json)
         response_text = await response.text()

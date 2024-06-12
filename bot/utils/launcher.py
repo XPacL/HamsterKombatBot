@@ -1,16 +1,17 @@
-import os
-import glob
-import asyncio
 import argparse
+import asyncio
+import glob
+import os
 from itertools import cycle
+
 from better_proxy import Proxy
 
-from bot.utils.client import Client
 from bot.config import settings
-from bot.utils import logger
-from bot.core.tapper import run_tapper
 from bot.core.registrator import register_client, register_client_by_tg_auth, migrate_old_clients
+from bot.core.tapper import run_tapper
 from bot.core.wallet_attach import attach_wallet
+from bot.utils.client import Client
+from bot.utils.logger import logger
 
 start_text = """
 

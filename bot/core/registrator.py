@@ -12,7 +12,7 @@ from bot.config import settings
 from bot.utils import logger
 from bot.utils.client import Client
 from bot.utils.fingerprint import FINGERPRINT
-from ..exceptions import InvalidSession
+from bot.exceptions import InvalidSession
 
 
 async def register_client() -> None:
