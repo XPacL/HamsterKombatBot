@@ -20,8 +20,10 @@
 | **APPLY_DAILY_ENERGY**                | Whether to use the daily free energy boost _(True / False)_                                                   |
 | **MIN_BALANCE**                       | Minimal balance that always will be availble                                                                  |
 | **MIN_TAPS_FOR_CLICKER_IN_PERCENT**   | Minimum percentage of taps (of the available number) at which the clicker will be launched. _Default 60%_     |
+| **CHECK_DAILY_COMBO**                 | Enable automatic purchase of combo cards _(True / False)_                                                     |
 | **SLEEP_INTERVAL_BEFORE_UPGRADE**     | Sleep before every upgrade. _default: [10, 40]_                                                               |
 | **USE_PROXY_FROM_FILE**               | Whether to use proxy from the `bot/config/proxies.txt` file (True / False)                                    |
+| **MAX_COMBO_PRICE**                   | The maximum total cost of combo cards at which the purchase of a combo will be triggered.                     |
 
 ## Quick Start 📚
 1. To install libraries on Windows click on `INSTALL.bat`.

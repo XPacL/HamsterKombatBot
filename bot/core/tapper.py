@@ -77,6 +77,10 @@ class Tapper:
                 return False
             combo_upgrades: list[Upgrade] = list(
                 filter(lambda u: u.id in combo and u.id not in self.daily_combo.upgrade_ids, self.upgrades))
+            total_cost = sum(upgrade.price for upgrade in combo_upgrades)
+            if total_cost > settings.MAX_COMBO_PRICE:
+                logger.info(f"{self.session_name} | Total cost of daily combo upgrades ({total_cost:,}) exceeds ({settings.MAX_COMBO_PRICE:,}). Skipping...")
+                return False
 
             for upgrade in combo_upgrades:
                 if not upgrade.can_upgrade():
@@ -313,7 +317,7 @@ async def run_tapper(client: Client, proxy: str | None):
         logger.error(f"{client.name} | Invalid Session")
 
 
-DAILY_JSON_URL = "https://anisovaleksey.github.io/HamsterKombatBot/daily_combo.json"
+DAILY_JSON_URL = "https://xpacl.github.io/HamsterKombatBot/daily_combo.json"
 
 
 async def fetch_daily_combo() -> list[str]:

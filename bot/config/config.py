@@ -24,5 +24,7 @@ class Settings(BaseSettings):
 
     CHECK_DAILY_COMBO: bool = True
 
+    MAX_COMBO_PRICE: int = 9999999999
+
 
 settings = Settings()
