@@ -1,10 +1,12 @@
 import json as json_parser
 from enum import StrEnum
 from time import time
+import datetime
 
 import aiohttp
 from better_proxy import Proxy
 
+from bot.config import API_URL
 from bot.core.entities import AirDropTask, Boost, Upgrade, Profile, Task, DailyCombo, Config, AirDropTaskId
 from bot.core.headers import create_headers
 from bot.utils import logger
@@ -12,22 +14,24 @@ from bot.utils.client import Client
 
 
 class Requests(StrEnum):
-    CONFIG = "https://api.hamsterkombat.io/clicker/config"
-    ME_TELEGRAM = "https://api.hamsterkombat.io/auth/me-telegram"
-    TAP = "https://api.hamsterkombat.io/clicker/tap"
-    BOOSTS_FOR_BUY = "https://api.hamsterkombat.io/clicker/boosts-for-buy"
-    BUY_UPGRADE = "https://api.hamsterkombat.io/clicker/buy-upgrade"
-    UPGRADES_FOR_BUY = "https://api.hamsterkombat.io/clicker/upgrades-for-buy"
-    BUY_BOOST = "https://api.hamsterkombat.io/clicker/buy-boost"
-    CHECK_TASK = "https://api.hamsterkombat.io/clicker/check-task"
-    SELECT_EXCHANGE = "https://api.hamsterkombat.io/clicker/select-exchange"
-    LIST_TASKS = "https://api.hamsterkombat.io/clicker/list-tasks"
-    SYNC = "https://api.hamsterkombat.io/clicker/sync"
-    CLAIM_DAILY_CIPHER = "https://api.hamsterkombat.io/clicker/claim-daily-cipher"
-    CLAIM_DAILY_COMBO = "https://api.hamsterkombat.io/clicker/claim-daily-combo"
-    REFERRAL_STAT = "https://api.hamsterkombat.io/clicker/referral-stat"
-    LIST_AIRDROP_TASKS = "https://api.hamsterkombat.io/clicker/list-airdrop-tasks"
-    CHECK_AIRDROP_TASK = "https://api.hamsterkombat.io/clicker/check-airdrop-task"
+    CONFIG = f"{API_URL}/clicker/config"
+    ME_TELEGRAM = f"{API_URL}/auth/me-telegram"
+    TAP = f"{API_URL}/clicker/tap"
+    BOOSTS_FOR_BUY = f"{API_URL}/clicker/boosts-for-buy"
+    BUY_UPGRADE = f"{API_URL}/clicker/buy-upgrade"
+    UPGRADES_FOR_BUY = f"{API_URL}/clicker/upgrades-for-buy"
+    BUY_BOOST = f"{API_URL}/clicker/buy-boost"
+    CHECK_TASK = f"{API_URL}/clicker/check-task"
+    SELECT_EXCHANGE = f"{API_URL}/clicker/select-exchange"
+    LIST_TASKS = f"{API_URL}/clicker/list-tasks"
+    SYNC = f"{API_URL}/clicker/sync"
+    CLAIM_DAILY_CIPHER = f"{API_URL}/clicker/claim-daily-cipher"
+    CLAIM_DAILY_COMBO = f"{API_URL}/clicker/claim-daily-combo"
+    REFERRAL_STAT = f"{API_URL}/clicker/referral-stat"
+    LIST_AIRDROP_TASKS = f"{API_URL}/clicker/list-airdrop-tasks"
+    CHECK_AIRDROP_TASK = f"{API_URL}/clicker/check-airdrop-task"
+    START_KEYS_MINIGAME = f"{API_URL}/clicker/start-keys-minigame"
+    CLAIM_DAILY_KEYS_MINIGAME = f"{API_URL}/clicker/claim-daily-keys-minigame"
 
 
 class WebClient:
@@ -123,9 +127,24 @@ class WebClient:
                                            json={'id': AirDropTaskId.CONNECT_TON_WALLET, 'walletAddress': wallet})
         return response.get('airdropTask', {}).get('isCompleted', False)
 
+    async def start_keys_minigame(self):
+        await self.make_request(Requests.START_KEYS_MINIGAME)
+
+    async def claim_daily_keys_minigame(self, cipher: str) -> Profile:
+        response = await self.make_request(Requests.CLAIM_DAILY_KEYS_MINIGAME, json={'cipher': cipher})
+        if 'found' in response:
+            response = response['found']
+        return Profile(data=response.get('clickerUser'))
+
     async def get_airdrop_tasks(self) -> list[AirDropTask]:
         response = await self.make_request(Requests.LIST_AIRDROP_TASKS)
         return list(map(lambda d: AirDropTask(data=d), response['airdropTasks']))
+
+    # noinspection PyMethodMayBeStatic
+    async def fetch_daily_combo(self) -> dict:
+        async with aiohttp.ClientSession() as http_client:  # we don't need the headers from self.http_client
+            response = await http_client.get(url="https://anisovaleksey.github.io/HamsterKombatBot/daily_combo.json")
+            return await response.json()
 
     async def make_request(self, request: Requests, json: dict | None = None) -> dict:
         response = await self.http_client.post(url=request,

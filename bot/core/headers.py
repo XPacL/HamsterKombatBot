@@ -1,13 +1,15 @@
 # pylint: disable=C0301
 import json as json_parser
 
+from bot.config import API_HOST, BASE_URL
+
 headers = {
     'Accept-Language': 'en-GB,en;q=0.9',
     'Accept-Encoding': 'gzip, deflate, br',
     'Connection': 'keep-alive',
-    'Host': 'api.hamsterkombat.io',
-    'Origin': 'https://hamsterkombat.io',
-    'Referer': 'https://hamsterkombat.io/',
+    'Host': API_HOST,
+    'Origin': BASE_URL,
+    'Referer': f"{BASE_URL}/",
     'Sec-Fetch-Dest': 'empty',
     'Sec-Fetch-Mode': 'cors',
     'Sec-Fetch-Site': 'same-site',

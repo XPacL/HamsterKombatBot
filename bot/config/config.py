@@ -17,6 +17,8 @@ class Settings(BaseSettings):
     USE_PROXY_FROM_FILE: bool = False
 
     MIN_BALANCE: int = 1_000
+    MAX_UPGRADE_LEVEL: int = 99
+    MAX_UPGRADE_PRICE: int = 9999999
 
     MIN_TAPS_FOR_CLICKER_IN_PERCENT: int = 60
 

@@ -8,7 +8,7 @@ from pyrogram import Client as TgClient
 from pyrogram.errors import Unauthorized, UserDeactivated, AuthKeyUnregistered, FloodWait
 from pyrogram.raw.functions.messages import RequestWebView
 
-from bot.config import settings
+from bot.config import settings, BASE_URL, API_URL
 from bot.utils import logger
 from bot.utils.client import Client
 from bot.utils.fingerprint import FINGERPRINT
@@ -105,7 +105,7 @@ async def register_client_by_tg_auth() -> None:
 async def auth(tg_client: TgClient) -> str | None:
     tg_web_data = await get_tg_web_data(tg_client)
 
-    response = requests.post(url='https://api.hamsterkombat.io/auth/auth-by-telegram-webapp',
+    response = requests.post(url=f'{API_URL}/auth/auth-by-telegram-webapp',
                              json={"initDataRaw": tg_web_data, "fingerprint": FINGERPRINT})
 
     return response.json().get('authToken')
@@ -136,7 +136,7 @@ async def get_tg_web_data(tg_client: TgClient) -> str | None:
             bot=peer,
             platform='android',
             from_bot_menu=False,
-            url='https://hamsterkombat.io/'
+            url=BASE_URL
         ))
 
         auth_url = web_view.url

@@ -7,6 +7,7 @@ from bot.config.config import settings
 # pylint: disable=R0902
 @dataclass
 class Profile:
+    id: str
     balance: float
     earn_per_hour: float
     earn_per_sec: float
@@ -17,8 +18,10 @@ class Profile:
     last_passive_earn: float
     exchange_id: str | None
     last_energy_boost_time: int
+    balance_keys: int
 
     def __init__(self, data: dict):
+        self.id = data.get('id')
         self.balance = data.get('balanceCoins', 0)
         self.earn_per_hour = data.get('earnPassivePerHour', 0)
         self.earn_per_sec = data.get('earnPassivePerSec', 0)
@@ -28,10 +31,11 @@ class Profile:
         self.max_energy = data.get('maxTaps', 0)
         self.last_passive_earn = data.get('lastPassiveEarn', 0)
         self.exchange_id = data.get('exchangeId')
+        self.balance_keys = data.get('balanceKeys', 0)
         try:
             self.last_energy_boost_time = next(
-                (boost for boost in data["boosts"] if boost['id'] == 'BoostFullAvailableTaps'), {}).get("lastUpgradeAt",
-                                                                                                        0)
+                (boost for boost in data["boosts"] if boost['id'] == 'BoostFullAvailableTaps'), {}
+            ).get("lastUpgradeAt", 0)
         except:
             self.last_energy_boost_time = 0
 
@@ -70,8 +74,8 @@ class Upgrade:
         self.condition = data.get("condition")
 
     def calculate_significance(self, profile: Profile) -> float:
-        if self.price == 0:
-            return 0
+        if self.earn_per_hour == 0:
+            return float('inf')
         if profile.earn_per_hour == 0:
             return self.price / self.earn_per_hour
         return self.price / self.earn_per_hour \
@@ -81,7 +85,6 @@ class Upgrade:
     def can_upgrade(self) -> bool:
         return self.is_available \
             and not self.is_expired \
-            and (self.earn_per_hour != 0 or self.welcome_coins != 0) \
             and self.max_level >= self.level
 
 
@@ -140,17 +143,45 @@ class DailyCipher:
 
 
 @dataclass
+class DailyKeysMiniGame:
+    start_date: str
+    level_config: str
+    youtube_url: str
+    bonus_keys: int
+    is_claimed: bool
+    total_seconds_to_next_attempt: int
+    remain_seconds_to_guess: float
+    remain_seconds: float
+    remain_seconds_to_next_attempt: float
+
+    def __init__(self, data: dict):
+        self.start_date = data["startDate"]
+        self.level_config = data["levelConfig"]
+        self.youtube_url = data["youtubeUrl"]
+        self.bonus_keys = data["bonusKeys"]
+        self.is_claimed = data["isClaimed"]
+        self.total_seconds_to_next_attempt = data["totalSecondsToNextAttempt"]
+        self.remain_seconds_to_guess = data["remainSecondsToGuess"]
+        self.remain_seconds = data["remainSeconds"]
+        self.remain_seconds_to_next_attempt = data["remainSecondsToNextAttempt"]
+
+
+@dataclass
 class Config:
     daily_cipher: DailyCipher
+    daily_keys_mini_game: DailyKeysMiniGame
 
     def __init__(self, data: dict):
         self.daily_cipher = DailyCipher(data=data["dailyCipher"])
+        self.daily_keys_mini_game = DailyKeysMiniGame(data=data["dailyKeysMiniGame"])
 
 
 class SleepReason(Enum):
     WAIT_UPGRADE_COOLDOWN = 1
     WAIT_UPGRADE_MONEY = 2
     WAIT_ENERGY_RECOVER = 3
+    WAIT_PASSIVE_EARN = 4
+    WAIT_DAILY_KEYS_MINI_GAME = 5
 
 
 @dataclass
