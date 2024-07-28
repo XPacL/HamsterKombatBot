@@ -30,6 +30,8 @@ class PromoKeysGenerator:
                     promo_code = promo_codes.pop(0)
                     if len(promo_codes) == 0:
                         self.available_promos.pop(promo_id)
+                    else:
+                        self.available_promos[promo_id] = promo_codes
                     return promo_code
             return None
         finally:
@@ -95,7 +97,8 @@ class PromoKeysGenerator:
                 promo_id=promo.promo_id
             )
             logger.info("Registered event for promo-code")
-            await asyncio.sleep(delay=25)
+            if not has_code:
+                await asyncio.sleep(delay=25)
 
         logger.info("Promo-code is available")
 
