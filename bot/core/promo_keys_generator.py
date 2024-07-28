@@ -83,6 +83,8 @@ class PromoKeysGenerator:
                 self.available_promos[promo.promo_id].append(promo_code)
             else:
                 self.available_promos[promo.promo_id] = [promo_code]
+
+            logger.info(f"Total available promo-codes: {len(self.available_promos[promo.promo_id])}")
         finally:
             self.lock.release()
 
@@ -100,7 +102,7 @@ class PromoKeysGenerator:
             if not has_code:
                 await asyncio.sleep(delay=25)
 
-        logger.info("Promo-code is available")
+        logger.info(f"New promo-code is available")
 
         return await self.web_client.create_code(
             token=auth_token,

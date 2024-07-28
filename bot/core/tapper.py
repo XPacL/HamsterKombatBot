@@ -359,7 +359,7 @@ class Tapper:
             if add_to_queue:
                 self.promo_key_generator.add_promo_to_queue(promo)
                 logger.info(f"{self.session_name} | Promo added to queue ({promo.promo_id})")
-                self.update_preferred_sleep(4 * 60, SleepReason.WAIT_PROMO_CODES)
+                self.update_preferred_sleep(25 * 60, SleepReason.WAIT_PROMO_CODES)
             elif self.promo_key_generator.remove_promo_from_queue(promo):
                 logger.info(f"{self.session_name} | Promo ({promo.promo_id}) done, removed from queue")
 
