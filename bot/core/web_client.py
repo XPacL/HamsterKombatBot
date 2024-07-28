@@ -158,10 +158,10 @@ class WebClient:
 
     async def get_promos(self) -> list[PromoState]:
         response = await self.make_request(Requests.GET_PROMOS)
-        promo_limits = {}
-        for promo in response["promos"]:
-            promo_limits[promo["promoId"]] = promo["keysPerDay"]
-        return list(map(lambda x: PromoState(data=x, available_keys_per_day=promo_limits[x.promo["promoId"]]), response["states"]))
+        promo_states = {}
+        for promo_state in response["states"]:
+            promo_states[promo_state["promoId"]] = promo_state
+        return [PromoState(data=x, promo_state=promo_states[x["promoId"]]) for x in response["promos"]]
 
     async def make_request(self, request: Requests, json: dict | None = None) -> dict:
         response = await self.http_client.post(url=request,

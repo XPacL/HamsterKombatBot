@@ -70,11 +70,11 @@ class PromoState:
     receive_keys_refresh_sec: int
     available_keys_per_day: int
 
-    def __init__(self, data: dict, available_keys_per_day):
+    def __init__(self, data: dict, promo_state: dict | None):
         self.id = data.get('promoId')
-        self.receive_keys_today = data.get("receiveKeysToday")
-        self.receive_keys_refresh_sec = data.get("receiveKeysRefreshSec")
-        self.available_keys_per_day = available_keys_per_day
+        self.receive_keys_today = promo_state.get("receiveKeysToday", 0)
+        self.receive_keys_refresh_sec = promo_state.get("receiveKeysRefreshSec", 0)
+        self.available_keys_per_day = data.get('keysPerDay')
 
 
 @dataclass
