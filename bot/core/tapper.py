@@ -11,7 +11,7 @@ from aiohttp_proxy import ProxyConnector
 
 from bot.config import settings
 from bot.core.entities import Upgrade, Profile, Boost, Task, Config, DailyCombo, Sleep, SleepReason
-from bot.core.promo_key_generator import PromoKeyGenerator, Promo
+from bot.core.promo_keys_generator import PromoKeysGenerator, Promo
 from bot.core.web_client import WebClient
 from bot.exceptions import InvalidSession
 from bot.core.actions.daily_keys_mini_game import get_keys_mini_game_cipher
@@ -20,14 +20,14 @@ from bot.utils.client import Client
 
 
 class Tapper:
-    def __init__(self, web_client: WebClient) -> None:
+    def __init__(self, web_client: WebClient, promo_keys_generator: PromoKeysGenerator) -> None:
         self.web_client = web_client
         self.session_name = web_client.session_name
         self.profile = Profile(data={})
         self.upgrades: list[Upgrade] = []
         self.boosts: list[Boost] = []
         self.tasks: list[Task] = []
-        self.promo_key_generator = PromoKeyGenerator(web_client)
+        self.promo_key_generator = promo_keys_generator
         self.daily_combo: DailyCombo | None = None
         self.preferred_sleep: Sleep | None = None
 
@@ -364,12 +364,12 @@ class Tapper:
                 logger.info(f"{self.session_name} | Promo ({promo.promo_id}) done, removed from queue")
 
 
-async def run_tapper(client: Client, proxy: str | None):
+async def run_tapper(client: Client, promo_keys_generator: PromoKeysGenerator, proxy: str | None):
     try:
         proxy_conn = ProxyConnector().from_url(proxy) if proxy else None
 
         async with aiohttp.ClientSession(connector=proxy_conn) as http_client:
             web_client = WebClient(http_client=http_client, client=client, proxy=proxy)
-            await Tapper(web_client=web_client).run()
+            await Tapper(web_client=web_client, promo_keys_generator=promo_keys_generator).run()
     except InvalidSession:
         logger.error(f"{client.name} | Invalid Session")

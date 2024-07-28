@@ -7,6 +7,8 @@ from itertools import cycle
 from better_proxy import Proxy
 
 from bot.config import settings
+from bot.core.promo_keys_generator import PromoKeysGenerator
+from bot.core.promo_keys_web_client import PromoKeysWebClient
 from bot.core.registrator import register_client, register_client_by_tg_auth, migrate_old_clients
 from bot.core.tapper import run_tapper
 from bot.core.wallet_attach import attach_wallet
@@ -101,7 +103,8 @@ async def process() -> None:
 async def run_tasks(clients: list[Client]):
     proxies = get_proxies()
     proxies_cycle = cycle(proxies) if proxies else None
-    tasks = [asyncio.create_task(run_tapper(client=client, proxy=next(proxies_cycle) if proxies_cycle else None))
+    promo_keys_generator = PromoKeysGenerator(web_client=PromoKeysWebClient())
+    tasks = [asyncio.create_task(run_tapper(client=client, promo_keys_generator=promo_keys_generator, proxy=next(proxies_cycle) if proxies_cycle else None))
              for client in clients]
 
     await asyncio.gather(*tasks)

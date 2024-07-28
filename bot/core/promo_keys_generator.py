@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from bot.core.web_client import WebClient
+from bot.core.promo_keys_web_client import PromoKeysWebClient
 from bot.utils import logger
 import threading
 import asyncio
@@ -13,8 +13,8 @@ class Promo:
     promo_id: str
 
 
-class PromoKeyGenerator:
-    def __init__(self, web_client: WebClient):
+class PromoKeysGenerator:
+    def __init__(self, web_client: PromoKeysWebClient):
         self.web_client = web_client
         self.promos_queue = []
         self.available_promos = {}  # promo_id: list[str]
@@ -56,10 +56,13 @@ class PromoKeyGenerator:
 
     async def run(self):
         while True:
-            promo = self.__get_next_promo()
-            promo_code = await self.__generate_promo_key(promo)
-            self.__add_to_available_promos(promo, promo_code)
-            await asyncio.sleep(delay=3 * 60)
+            try:
+                promo = self.__get_next_promo()
+                promo_code = await self.__generate_promo_key(promo)
+                self.__add_to_available_promos(promo, promo_code)
+            except Exception as e:
+                logger.error(f"Exception while generating promo key: {e}")
+            await asyncio.sleep(delay=40)
 
     def __get_next_promo(self) -> Promo | None:
         self.queue_lock.acquire()
