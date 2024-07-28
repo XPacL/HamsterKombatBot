@@ -161,7 +161,12 @@ class WebClient:
         promo_states = {}
         for promo_state in response["states"]:
             promo_states[promo_state["promoId"]] = promo_state
-        return [PromoState(data=x, promo_state=promo_states[x["promoId"]]) for x in response["promos"]]
+        return [
+            PromoState(
+                data=x,
+                promo_state=promo_states[x["promoId"]] if promo_states.__contains__(x["promoId"]) else None
+            ) for x in response["promos"]
+        ]
 
     async def make_request(self, request: Requests, json: dict | None = None) -> dict:
         response = await self.http_client.post(url=request,
