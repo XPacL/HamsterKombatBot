@@ -47,7 +47,8 @@ class Profile:
         self.last_passive_earn = data.get('lastPassiveEarn', 0)
         self.exchange_id = data.get('exchangeId')
         self.balance_keys = data.get('balanceKeys', 0)
-        self.promos = list(map(lambda p: ReceivedPromo(data=p), data.get('promos'))) if data.__contains__('promos') else []
+        self.promos = list(map(lambda p: ReceivedPromo(data=p), data.get('promos'))) if data.__contains__(
+            'promos') else []
         try:
             self.last_energy_boost_time = next(
                 (boost for boost in data["boosts"] if boost['id'] == 'BoostFullAvailableTaps'), {}
@@ -229,8 +230,9 @@ class Config:
         self.daily_keys_mini_game = DailyKeysMiniGame(data=data["dailyKeysMiniGame"])
         self.promos = list(map(
             lambda x: Promo(data=x["promos"], promo_app_id=x["token"]),
-            data.get("promos").get("apps")
+            data.get("clickerConfig").get("promos").get("apps")
         ))
+
 
 class SleepReason(Enum):
     WAIT_UPGRADE_COOLDOWN = 1
