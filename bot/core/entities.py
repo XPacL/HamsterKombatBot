@@ -47,7 +47,7 @@ class Profile:
         self.last_passive_earn = data.get('lastPassiveEarn', 0)
         self.exchange_id = data.get('exchangeId')
         self.balance_keys = data.get('balanceKeys', 0)
-        self.promos = list(map(lambda p: ReceivedPromo(data=p), data.get('promos')))
+        self.promos = list(map(lambda p: ReceivedPromo(data=p), data.get('promos'))) if data.__contains__('promos') else []
         try:
             self.last_energy_boost_time = next(
                 (boost for boost in data["boosts"] if boost['id'] == 'BoostFullAvailableTaps'), {}
