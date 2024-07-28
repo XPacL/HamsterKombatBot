@@ -104,7 +104,10 @@ async def run_tasks(clients: list[Client]):
     proxies = get_proxies()
     proxies_cycle = cycle(proxies) if proxies else None
     promo_keys_generator = PromoKeysGenerator(web_client=PromoKeysWebClient())
+    generator_task = asyncio.create_task(promo_keys_generator.run())
     tasks = [asyncio.create_task(run_tapper(client=client, promo_keys_generator=promo_keys_generator, proxy=next(proxies_cycle) if proxies_cycle else None))
              for client in clients]
+
+    tasks.append(generator_task)
 
     await asyncio.gather(*tasks)
