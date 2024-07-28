@@ -166,10 +166,15 @@ class WebClient:
         ]
 
     async def make_request(self, request: Requests, json: dict | None = None) -> dict:
+        if request == Requests.APPLY_PROMO:
+            logger.info(f"request params: {json}")
         response = await self.http_client.post(url=request,
                                                headers=create_hamster_headers(json),
                                                json=json)
         response_text = await response.text()
+        if response.status == 400:
+            logger.info(f"response: {response_text}")
+
         if response.status != 422:
             response.raise_for_status()
 

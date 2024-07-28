@@ -289,7 +289,7 @@ class Tapper:
                         case SleepReason.WAIT_DAILY_KEYS_MINI_GAME:
                             logger.info(f"{self.session_name} | Sleep {sleep_time:.0f}s for wait daily keys mini-game")
                         case SleepReason.WAIT_PROMO_CODES:
-                            logger.info(f"{self.session_name} | Sleep {sleep_time:.0f}s for wait promo codes")
+                            logger.info(f"{self.session_name} | Sleep {sleep_time:.0f}s for wait promo-codes")
 
                     self.preferred_sleep = None
                     await self.sleep(delay=sleep_time)
