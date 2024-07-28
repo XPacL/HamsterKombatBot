@@ -228,10 +228,7 @@ class Config:
     def __init__(self, data: dict):
         self.daily_cipher = DailyCipher(data=data["dailyCipher"])
         self.daily_keys_mini_game = DailyKeysMiniGame(data=data["dailyKeysMiniGame"])
-        self.promos = list(map(
-            lambda x: Promo(data=x["promos"], promo_app_id=x["token"]),
-            data.get("clickerConfig").get("promos").get("apps")
-        ))
+        self.promos = [Promo(data=promo, promo_app_id=promos["token"]) for promos in data.get("clickerConfig").get("promos").get("apps") for promo in promos["promos"]]
 
 
 class SleepReason(Enum):
