@@ -4,6 +4,20 @@ from enum import Enum, StrEnum
 from bot.config.config import settings
 
 
+@dataclass
+class ReceivedPromo:
+    promo_id: str
+    receive_keys_total: int
+    receive_keys_today: int
+    receive_keys_last_time: str
+
+    def __init__(self, data: dict):
+        self.promo_id = data.get("promoId")
+        self.receive_keys_total = data.get("receiveKeysTotal")
+        self.receive_keys_today = data.get("receiveKeysToday")
+        self.receive_keys_last_time = data.get("receiveKeysLastTime")
+
+
 # pylint: disable=R0902
 @dataclass
 class Profile:
@@ -19,6 +33,7 @@ class Profile:
     exchange_id: str | None
     last_energy_boost_time: int
     balance_keys: int
+    promos: list[ReceivedPromo]
 
     def __init__(self, data: dict):
         self.id = data.get('id')
@@ -32,6 +47,7 @@ class Profile:
         self.last_passive_earn = data.get('lastPassiveEarn', 0)
         self.exchange_id = data.get('exchangeId')
         self.balance_keys = data.get('balanceKeys', 0)
+        self.promos = list(map(lambda p: ReceivedPromo(data=p), data.get('promos')))
         try:
             self.last_energy_boost_time = next(
                 (boost for boost in data["boosts"] if boost['id'] == 'BoostFullAvailableTaps'), {}
@@ -44,6 +60,20 @@ class Profile:
 
     def get_spending_balance(self):
         return self.balance - settings.MIN_BALANCE
+
+
+@dataclass
+class PromoState:
+    id: str
+    receive_keys_today: int
+    receive_keys_refresh_sec: int
+    available_keys_per_day: int
+
+    def __init__(self, data: dict, available_keys_per_day):
+        self.id = data.get('promoId')
+        self.receive_keys_today = data.get("receiveKeysToday")
+        self.receive_keys_refresh_sec = data.get("receiveKeysRefreshSec")
+        self.available_keys_per_day = available_keys_per_day
 
 
 @dataclass
@@ -167,14 +197,40 @@ class DailyKeysMiniGame:
 
 
 @dataclass
+class Promo:
+    promo_app_id: str
+    promo_id: str
+    prefix: str
+    events_count: int
+    codes_per_day: int
+    keys_per_day: int
+    keys_per_code: int
+    blocked: bool
+
+    def __init__(self, data: dict, promo_app_id: str):
+        self.promo_app_id = promo_app_id
+        self.promo_id = data["promoId"]
+        self.prefix = data["prefix"]
+        self.events_count = data["eventsCount"]
+        self.codes_per_day = data["codesPerDay"]
+        self.keys_per_day = data["keysPerDay"]
+        self.keys_per_code = data["keysPerCode"]
+        self.blocked = data["blocked"]
+
+
+@dataclass
 class Config:
     daily_cipher: DailyCipher
     daily_keys_mini_game: DailyKeysMiniGame
+    promos: list[Promo]
 
     def __init__(self, data: dict):
         self.daily_cipher = DailyCipher(data=data["dailyCipher"])
         self.daily_keys_mini_game = DailyKeysMiniGame(data=data["dailyKeysMiniGame"])
-
+        self.promos = list(map(
+            lambda x: Promo(data=x["promos"], promo_app_id=x["token"]),
+            data.get("promos").get("apps")
+        ))
 
 class SleepReason(Enum):
     WAIT_UPGRADE_COOLDOWN = 1
@@ -182,6 +238,7 @@ class SleepReason(Enum):
     WAIT_ENERGY_RECOVER = 3
     WAIT_PASSIVE_EARN = 4
     WAIT_DAILY_KEYS_MINI_GAME = 5
+    WAIT_PROMO_CODES = 6
 
 
 @dataclass

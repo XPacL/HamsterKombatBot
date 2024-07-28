@@ -11,7 +11,7 @@ from aiohttp_proxy import ProxyConnector
 
 from bot.config import settings
 from bot.core.entities import Upgrade, Profile, Boost, Task, Config, DailyCombo, Sleep, SleepReason
-from bot.core.headers import headers
+from bot.core.promo_key_generator import PromoKeyGenerator, Promo
 from bot.core.web_client import WebClient
 from bot.exceptions import InvalidSession
 from bot.core.actions.daily_keys_mini_game import get_keys_mini_game_cipher
@@ -27,6 +27,7 @@ class Tapper:
         self.upgrades: list[Upgrade] = []
         self.boosts: list[Boost] = []
         self.tasks: list[Task] = []
+        self.promo_key_generator = PromoKeyGenerator(web_client)
         self.daily_combo: DailyCombo | None = None
         self.preferred_sleep: Sleep | None = None
 
@@ -35,7 +36,7 @@ class Tapper:
             return
         if delay >= 3 * 60 * 60:
             self.preferred_sleep = Sleep(
-                delay=randint(1*60*60, 2*60*60),
+                delay=randint(1 * 60 * 60, 2 * 60 * 60),
                 sleep_reason=SleepReason.WAIT_PASSIVE_EARN,
                 created_time=time()
             )
@@ -230,6 +231,9 @@ class Tapper:
                 # KEYS MINI-GAME
                 await self.check_daily_keys_mini_game(config=config)
 
+                # MINI-GAMES WITH PROMO CODES
+                await self.check_mini_games(config=config)
+
                 # TASKS COMPLETING
                 for task in self.tasks:
                     if task.is_completed is False:
@@ -276,13 +280,16 @@ class Tapper:
                         case SleepReason.WAIT_UPGRADE_MONEY:
                             logger.info(f"{self.session_name} | Sleep {sleep_time:.0f}s for earn money for upgrades")
                         case SleepReason.WAIT_UPGRADE_COOLDOWN:
-                            logger.info(f"{self.session_name} | Sleep {sleep_time:.0f}s for waiting cooldown for upgrades")
+                            logger.info(
+                                f"{self.session_name} | Sleep {sleep_time:.0f}s for waiting cooldown for upgrades")
                         case SleepReason.WAIT_ENERGY_RECOVER:
                             logger.info(f"{self.session_name} | Sleep {sleep_time:.0f}s for recover full energy")
                         case SleepReason.WAIT_PASSIVE_EARN:
                             logger.info(f"{self.session_name} | Sleep {sleep_time:.0f}s for earn money")
                         case SleepReason.WAIT_DAILY_KEYS_MINI_GAME:
                             logger.info(f"{self.session_name} | Sleep {sleep_time:.0f}s for wait daily keys mini-game")
+                        case SleepReason.WAIT_PROMO_CODES:
+                            logger.info(f"{self.session_name} | Sleep {sleep_time:.0f}s for wait promo codes")
 
                     self.preferred_sleep = None
                     await self.sleep(delay=sleep_time)
@@ -307,7 +314,8 @@ class Tapper:
 
         remain_seconds = config.daily_keys_mini_game.remain_seconds_to_next_attempt
         if remain_seconds > 0:
-            logger.info(f"{self.session_name} | Daily keys mini-game will be available after {remain_seconds:.0f} seconds")
+            logger.info(
+                f"{self.session_name} | Daily keys mini-game will be available after {remain_seconds:.0f} seconds")
             self.update_preferred_sleep(
                 delay=remain_seconds,
                 sleep_reason=SleepReason.WAIT_DAILY_KEYS_MINI_GAME
@@ -316,16 +324,46 @@ class Tapper:
 
         await self.web_client.start_keys_minigame()
         await self.sleep(delay=randint(5, 15))
-        self.profile = await self.web_client.claim_daily_keys_minigame(cipher=get_keys_mini_game_cipher(config, self.profile.id))
+        self.profile = await self.web_client.claim_daily_keys_minigame(
+            cipher=get_keys_mini_game_cipher(config, self.profile.id))
         logger.info(f"{self.session_name} | Daily keys mini-game successfully finished | "
                     f"Total keys: {self.profile.balance_keys}")
+
+    async def check_mini_games(self, config: Config):
+        promo_states = await self.web_client.get_promos()
+        for promo_state in promo_states:
+            keys_left = promo_state.available_keys_per_day - promo_state.receive_keys_today
+            promo = next((p for p in config.promos if p.promo_id == promo_state.id), None)
+
+            if promo is None:
+                logger.info(f"{self.session_name} | Promo not found for id: {promo_state.id}")
+                continue
+            promo = Promo(
+                client_id=self.profile.id,
+                promo_app=promo.promo_app_id,
+                promo_id=promo.promo_id,
+            )
+
+            if keys_left > 0:
+                # iterate keys_left times
+                for i in range(keys_left):
+                    promo_code = self.promo_key_generator.consume_promo_code(promo_state.id)
+                    if promo_code is not None:
+                        self.profile = await self.web_client.apply_promo(promo_code)
+                        logger.info(f"{self.session_name} | Promo code successfully applied | Total keys: {self.profile.balance_keys}")
+                    else:
+                        await self.promo_key_generator.add_promo_to_queue(promo)
+                        logger.info(f"{self.session_name} | Promo added to queue ({promo.promo_id})")
+                        self.update_preferred_sleep(25 * 60, SleepReason.WAIT_PROMO_CODES)
+            if self.promo_key_generator.remove_promo_from_queue(promo):
+                logger.info(f"{self.session_name} | Promo ({promo.promo_id}) done, removed from queue")
 
 
 async def run_tapper(client: Client, proxy: str | None):
     try:
         proxy_conn = ProxyConnector().from_url(proxy) if proxy else None
 
-        async with aiohttp.ClientSession(headers=headers, connector=proxy_conn) as http_client:
+        async with aiohttp.ClientSession(connector=proxy_conn) as http_client:
             web_client = WebClient(http_client=http_client, client=client, proxy=proxy)
             await Tapper(web_client=web_client).run()
     except InvalidSession:

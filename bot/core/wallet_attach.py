@@ -1,7 +1,6 @@
 import aiohttp
 
 from bot.core.entities import AirDropTaskId
-from bot.core.headers import headers
 from bot.core.web_client import WebClient
 from bot.utils import logger
 from bot.utils.client import Client
@@ -25,7 +24,7 @@ async def attach_wallet(clients: list[Client]):
 
 async def attach_wallet_to_client(client: Client, wallet: str):
     try:
-        async with aiohttp.ClientSession(headers=headers) as http_client:
+        async with aiohttp.ClientSession() as http_client:
             web_client = WebClient(http_client=http_client, client=client, proxy=None)
             tasks = await web_client.get_airdrop_tasks()
             connect_ton_task = next(t for t in tasks if t.id == AirDropTaskId.CONNECT_TON_WALLET)
