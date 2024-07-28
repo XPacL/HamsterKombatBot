@@ -72,8 +72,12 @@ class PromoState:
 
     def __init__(self, data: dict, promo_state: dict | None):
         self.id = data.get('promoId')
-        self.receive_keys_today = promo_state.get("receiveKeysToday", 0)
-        self.receive_keys_refresh_sec = promo_state.get("receiveKeysRefreshSec", 0)
+        if promo_state is not None:
+            self.receive_keys_today = promo_state.get("receiveKeysToday")
+            self.receive_keys_refresh_sec = promo_state.get("receiveKeysRefreshSec")
+        else:
+            self.receive_keys_today = 0
+            self.receive_keys_refresh_sec = 0
         self.available_keys_per_day = data.get('keysPerDay')
 
 
