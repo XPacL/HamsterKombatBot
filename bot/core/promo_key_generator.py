@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 
 from bot.core.web_client import WebClient
+from bot.utils import logger
 import threading
 import asyncio
 
@@ -80,6 +81,7 @@ class PromoKeyGenerator:
             self.lock.release()
 
     async def __generate_promo_key(self, promo: Promo) -> str:
+        logger.info("Start generating promo key")
         auth_token = await self.web_client.login_gamepromo(app_token=promo.promo_app)
         await asyncio.sleep(delay=5)
         has_code = False
@@ -88,7 +90,10 @@ class PromoKeyGenerator:
                 token=auth_token,
                 promo_id=promo.promo_id
             )
+            logger.info("Registered event for promo code")
             await asyncio.sleep(delay=25)
+
+        logger.info("Promo code is available")
 
         return await self.web_client.create_code(
             token=auth_token,

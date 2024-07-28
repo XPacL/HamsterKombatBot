@@ -343,6 +343,7 @@ class Tapper:
                 promo_app=promo.promo_app_id,
                 promo_id=promo.promo_id,
             )
+            add_to_queue = False
 
             if keys_left > 0:
                 # iterate keys_left times
@@ -352,10 +353,14 @@ class Tapper:
                         self.profile = await self.web_client.apply_promo(promo_code)
                         logger.info(f"{self.session_name} | Promo code successfully applied | Total keys: {self.profile.balance_keys}")
                     else:
-                        self.promo_key_generator.add_promo_to_queue(promo)
-                        logger.info(f"{self.session_name} | Promo added to queue ({promo.promo_id})")
-                        self.update_preferred_sleep(25 * 60, SleepReason.WAIT_PROMO_CODES)
-            if self.promo_key_generator.remove_promo_from_queue(promo):
+                        add_to_queue = True
+                        break
+
+            if add_to_queue:
+                self.promo_key_generator.add_promo_to_queue(promo)
+                logger.info(f"{self.session_name} | Promo added to queue ({promo.promo_id})")
+                self.update_preferred_sleep(25 * 60, SleepReason.WAIT_PROMO_CODES)
+            elif self.promo_key_generator.remove_promo_from_queue(promo):
                 logger.info(f"{self.session_name} | Promo ({promo.promo_id}) done, removed from queue")
 
 
