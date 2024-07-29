@@ -2,6 +2,8 @@ from dataclasses import dataclass
 
 from bot.core.promo_keys_web_client import PromoKeysWebClient
 from bot.utils import logger
+from bot.config import settings
+from random import randint
 import threading
 import asyncio
 
@@ -65,7 +67,9 @@ class PromoKeysGenerator:
                     self.__add_to_available_promos(promo, promo_code)
             except Exception as e:
                 logger.error(f"Exception while generating promo key: {e}")
-            await asyncio.sleep(delay=40)
+
+            sleep_time = randint(settings.SLEEP_INTERVAL_BETWEEN_PROMOCODES_GENERATIONS[0], settings.SLEEP_INTERVAL_BETWEEN_PROMOCODES_GENERATIONS[1])
+            await asyncio.sleep(delay=float(sleep_time))
 
     def __get_next_promo(self) -> Promo | None:
         self.queue_lock.acquire()
@@ -84,25 +88,26 @@ class PromoKeysGenerator:
             else:
                 self.available_promos[promo.promo_id] = [promo_code]
 
-            logger.info(f"Total available promo-codes: {len(self.available_promos[promo.promo_id])}")
+            logger.info(f"[Promo Keys Generator] Total available promo-codes: {len(self.available_promos[promo.promo_id])}")
         finally:
             self.lock.release()
 
     async def __generate_promo_key(self, promo: Promo) -> str:
-        logger.info("Start generating promo-code")
+        logger.info("[Promo Keys Generator] Start generating promo-code")
         auth_token = await self.web_client.login_gamepromo(app_token=promo.promo_app)
-        await asyncio.sleep(delay=5)
+        await asyncio.sleep(delay=2)
         has_code = False
         while not has_code:
             has_code = await self.web_client.register_event(
                 token=auth_token,
                 promo_id=promo.promo_id
             )
-            logger.info("Registered event for promo-code")
+            logger.info("[Promo Keys Generator] Registered event for promo-code")
             if not has_code:
-                await asyncio.sleep(delay=25)
+                sleep_time = randint(settings.SLEEP_INTERVAL_BETWEEN_EVENTS_FOR_PROMOCODES[0], settings.SLEEP_INTERVAL_BETWEEN_EVENTS_FOR_PROMOCODES[1])
+                await asyncio.sleep(delay=float(sleep_time))
 
-        logger.info(f"New promo-code is available")
+        logger.info(f"[Promo Keys Generator] New promo-code is available")
 
         return await self.web_client.create_code(
             token=auth_token,

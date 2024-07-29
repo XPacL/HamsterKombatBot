@@ -199,7 +199,7 @@ class Tapper:
         self.profile = profile
 
         logger.success(f"{self.session_name} | Successful tapped <c>{simulated_taps}</c> times! | "
-                       f"Balance: <c>{format_number(self.profile.balance)}</c> (<g>+{calc_taps}</g>)")
+                       f"Balance: <c>{format_number(self.profile.balance)}</c> (<g>+{format_number(calc_taps)}</g>)")
         return True
 
     async def sleep(self, delay: int):
@@ -346,7 +346,6 @@ class Tapper:
             add_to_queue = False
 
             if keys_left > 0:
-                # iterate keys_left times
                 for i in range(keys_left):
                     promo_code = self.promo_key_generator.consume_promo_code(promo_state.id)
                     if promo_code is not None:
@@ -359,7 +358,7 @@ class Tapper:
             if add_to_queue:
                 self.promo_key_generator.add_promo_to_queue(promo)
                 logger.info(f"{self.session_name} | Promo added to queue ({promo.promo_id})")
-                self.update_preferred_sleep(25 * 60, SleepReason.WAIT_PROMO_CODES)
+                self.update_preferred_sleep(30 * 60, SleepReason.WAIT_PROMO_CODES)
             elif self.promo_key_generator.remove_promo_from_queue(promo):
                 logger.info(f"{self.session_name} | Promo ({promo.promo_id}) done, removed from queue")
 
