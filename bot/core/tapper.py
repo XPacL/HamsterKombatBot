@@ -99,20 +99,6 @@ class Tapper:
                 available_upgrades, key=lambda u: u.calculate_significance(self.profile), reverse=False
             )
 
-            # тут мы получили полный отсортированный список апгрейдов
-            # из него берем топ 10 апгрейтов, которые мы в принципе рассматриваем для обновления(остальные условно считаем не выгодные)
-            # далее из этого списка мы получаем только те апгрейды, которые еще "не раздутые", чтобы не завышать цену еще больше.
-            # это нужно для высоких левелов, когда карточки уже очень дорогие и мы хотим состедоточиться на накоплении баланса,
-            # но так же хотим апать новые, выгодные карточки, которые недавно открылись.
-            available_upgrades = list(filter(
-                lambda u: u.level < settings.MAX_UPGRADE_LEVEL and u.price < settings.MAX_UPGRADE_PRICE,
-                available_upgrades[:10]
-            ))
-
-            if len(available_upgrades) == 0:
-                logger.info(f"{self.session_name} | No available upgrades")
-                break
-
             most_profit_upgrade: Upgrade = available_upgrades[0]
 
             # pylint: disable=C0415
@@ -120,6 +106,20 @@ class Tapper:
             daily_combo_upgrade = await get_daily_combo(self, most_profit_upgrade)
             if daily_combo_upgrade is not None:
                 most_profit_upgrade = daily_combo_upgrade
+            else:
+                # тут мы получили полный отсортированный список апгрейдов
+                # из него берем топ 10 апгрейтов, которые мы в принципе рассматриваем для обновления(остальные условно считаем не выгодные)
+                # далее из этого списка мы получаем только те апгрейды, которые еще "не раздутые", чтобы не завышать цену еще больше.
+                # это нужно для высоких левелов, когда карточки уже очень дорогие и мы хотим состедоточиться на накоплении баланса,
+                # но так же хотим апать новые, выгодные карточки, которые недавно открылись.
+                available_upgrades = list(filter(
+                    lambda u: u.level < settings.MAX_UPGRADE_LEVEL and u.price < settings.MAX_UPGRADE_PRICE,
+                    available_upgrades[:10]
+                ))
+                if len(available_upgrades) == 0:
+                    logger.info(f"{self.session_name} | No available upgrades")
+                    break
+                most_profit_upgrade = available_upgrades[0]
 
             if most_profit_upgrade.price > self.profile.get_spending_balance():
                 logger.info(f"{self.session_name} | Not enough money for upgrade <e>{most_profit_upgrade.name}</e>")
