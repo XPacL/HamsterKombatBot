@@ -3,7 +3,7 @@ from time import time
 
 from bot.core.entities import Upgrade
 from bot.core.tapper import Tapper
-from bot.utils import logger
+from bot.utils import logger, format_number
 
 
 async def get_daily_combo(bot: Tapper, most_profit_upgrade: Upgrade) -> Upgrade | None:
@@ -26,8 +26,8 @@ async def get_daily_combo(bot: Tapper, most_profit_upgrade: Upgrade) -> Upgrade 
         most_profit_upgrade_significance = most_profit_upgrade.calculate_significance(bot.profile)
         if combo_significance >= most_profit_upgrade_significance:
             logger.info(f"{bot.session_name} | Daily combo is not profitable "
-                        f"| Combo payback: {combo_significance} "
-                        f"| Most profit Upgrade: {most_profit_upgrade_significance}")
+                        f"| Combo payback: {combo_significance:.0f} hours "
+                        f"| Most profit Upgrade: {most_profit_upgrade_significance:.0f} hours")
         else:
             return combo_upgrades[0]
 
@@ -86,7 +86,7 @@ async def check_daily_combo_is_possible(bot: Tapper, combo: list[Upgrade], end_c
     if max_possible_balance < total_price:
         logger.info(f"{bot.session_name} "
                     f"| Impossible to buy daily combo "
-                    f"| Total price of combo: {total_price:_} "
-                    f"| Max possible balance before combo end: {max_possible_balance:_}")
+                    f"| Total price of combo: {format_number(total_price)} "
+                    f"| Max possible balance before combo end: {format_number(max_possible_balance)}")
         return False
     return True
