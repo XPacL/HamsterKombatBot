@@ -294,15 +294,17 @@ class Tapper:
                     self.preferred_sleep = None
                     await self.sleep(delay=sleep_time)
                 else:
-                    logger.info(f"{self.session_name} | Sleep 3600s before next iteration")
-                    await self.sleep(delay=3600)
+                    sleep_time = randint(1 * 60 * 60, 3 * 60 * 60)
+                    logger.info(f"{self.session_name} | Sleep {sleep_time}s before next iteration")
+                    await self.sleep(delay=sleep_time)
 
             except InvalidSession as error:
                 raise error
             except aiohttp.ClientResponseError as error:
                 logger.error(f"{self.session_name} | Client response error: {error}")
-                logger.info(f"{self.session_name} | Sleep 3600s before next iteration because of error")
-                await self.sleep(delay=3600)
+                sleep_time = randint(1 * 60 * 60, 3 * 60 * 60)
+                logger.info(f"{self.session_name} | Sleep {sleep_time}s before next iteration because of error")
+                await self.sleep(delay=sleep_time)
             except Exception as error:
                 logger.error(f"{self.session_name} | Unknown error: {error}")
                 traceback.print_exc()
