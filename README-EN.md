@@ -23,7 +23,7 @@
 | **MAX_UPGRADE_PRICE**                             | Maximum price of a profitable card for upgrade                                                            |
 | **MIN_TAPS_FOR_CLICKER_IN_PERCENT**               | Minimum percentage of taps (of the available number) at which the clicker will be launched. _Default 60%_ |
 | **SLEEP_INTERVAL_BEFORE_UPGRADE**                 | Sleep before every upgrade. _default: [10, 40]_                                                           |
-| **SLEEP_INTERVAL_BETWEEN_EVENTS_FOR_PROMOCODES**  | Sleep before register events for promocodes. _default: [15, 25]_                                          |
+| **SLEEP_INTERVAL_BETWEEN_EVENTS_FOR_PROMOCODES**  | Sleep before register events for promocodes. _default: [20, 30]_                                          |
 | **SLEEP_INTERVAL_BETWEEN_PROMOCODES_GENERATIONS** | Sleep between promocode generations. _default: [5, 15]_                                                   |
 | **USE_PROXY_FROM_FILE**                           | Whether to use proxy from the `bot/config/proxies.txt` file (True / False)                                |
 

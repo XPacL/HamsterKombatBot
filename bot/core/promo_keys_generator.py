@@ -98,11 +98,14 @@ class PromoKeysGenerator:
         await asyncio.sleep(delay=2)
         has_code = False
         while not has_code:
-            has_code = await self.web_client.register_event(
-                token=auth_token,
-                promo_id=promo.promo_id
-            )
-            logger.info("[Promo Keys Generator] Registered event for promo-code")
+            try:
+                has_code = await self.web_client.register_event(
+                    token=auth_token,
+                    promo_id=promo.promo_id
+                )
+                logger.info("[Promo Keys Generator] Registered event for promo-code")
+            except Exception as e:
+                logger.error(f"[Promo Keys Generator] Exception while generating promo-code: {e}")
             if not has_code:
                 sleep_time = randint(settings.SLEEP_INTERVAL_BETWEEN_EVENTS_FOR_PROMOCODES[0], settings.SLEEP_INTERVAL_BETWEEN_EVENTS_FOR_PROMOCODES[1])
                 await asyncio.sleep(delay=float(sleep_time))

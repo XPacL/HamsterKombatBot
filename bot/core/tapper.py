@@ -338,6 +338,10 @@ class Tapper:
             if promo is None:
                 logger.info(f"{self.session_name} | Promo not found for id: {promo_state.id}")
                 continue
+
+            if promo.blocked:
+                continue
+
             promo = Promo(
                 client_id=self.profile.id,
                 promo_app=promo.promo_app_id,

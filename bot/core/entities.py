@@ -212,7 +212,7 @@ class Promo:
     keys_per_code: int
     blocked: bool
 
-    def __init__(self, data: dict, promo_app_id: str):
+    def __init__(self, data: dict, promo_app_id: str, blocked: bool):
         self.promo_app_id = promo_app_id
         self.promo_id = data["promoId"]
         self.prefix = data["prefix"]
@@ -220,7 +220,7 @@ class Promo:
         self.codes_per_day = data["codesPerDay"]
         self.keys_per_day = data["keysPerDay"]
         self.keys_per_code = data["keysPerCode"]
-        self.blocked = data["blocked"]
+        self.blocked = data["blocked"] or blocked
 
 
 @dataclass
@@ -232,7 +232,7 @@ class Config:
     def __init__(self, data: dict):
         self.daily_cipher = DailyCipher(data=data["dailyCipher"])
         self.daily_keys_mini_game = DailyKeysMiniGame(data=data["dailyKeysMiniGame"])
-        self.promos = [Promo(data=promo, promo_app_id=promos["token"]) for promos in data.get("clickerConfig").get("promos").get("apps") for promo in promos["promos"]]
+        self.promos = [Promo(data=promo, promo_app_id=promos["token"], blocked=promos["blocked"]) for promos in data.get("clickerConfig").get("promos").get("apps") for promo in promos["promos"]]
 
 
 class SleepReason(Enum):
