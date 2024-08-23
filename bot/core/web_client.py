@@ -145,14 +145,14 @@ class WebClient:
     # noinspection PyMethodMayBeStatic
     async def fetch_daily_combo(self) -> dict:
         async with aiohttp.ClientSession() as http_client:  # we don't need the headers from self.http_client
-            response = await http_client.get(url="https://anisovaleksey.github.io/HamsterKombatBot/daily_combo.json")
+            response = await http_client.get(url="https://xpacl.github.io/HamsterKombatBot/daily_combo.json")
             return await response.json()
 
     # noinspection PyMethodMayBeStatic
     async def fetch_promo_app_mapping(self) -> dict:
         async with aiohttp.ClientSession() as http_client:  # we don't need the headers from self.http_client
             response = await http_client.get(
-                url="https://anisovaleksey.github.io/HamsterKombatBot/promo_apps.json")
+                url="https://xpacl.github.io/HamsterKombatBot/promo_apps.json")
             promo_apps = await response.json()
             return dict((promo_app.get("promoId"), Promo(promo_app)) for promo_app in promo_apps)
 
