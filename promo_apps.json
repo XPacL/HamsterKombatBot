@@ -5,11 +5,6 @@
     "minWaitAfterLogin": 21
   },
   {
-    "promoId": "c4480ac7-e178-4973-8061-9ed5b2e17954",
-    "appToken": "82647f43-3f87-402d-88dd-09a90025313f",
-    "minWaitAfterLogin": 121
-  },
-  {
     "promoId": "43e35910-c168-4634-ad4f-52fd764a843f",
     "appToken": "d28721be-fd2d-4b45-869e-9f253b554e50",
     "minWaitAfterLogin": 21
@@ -30,13 +25,13 @@
     "minWaitAfterLogin": 31
   },
   {
-    "promoId": "8814a785-97fb-4177-9193-ca4180ff9da8",
-    "appToken": "8814a785-97fb-4177-9193-ca4180ff9da8",
-    "minWaitAfterLogin": 31
-  },
-  {
     "promoId": "ef319a80-949a-492e-8ee0-424fb5fc20a6",
     "appToken": "ef319a80-949a-492e-8ee0-424fb5fc20a6",
     "minWaitAfterLogin": 31
+  },
+  {
+    "promoId": "bc0971b8-04df-4e72-8a3e-ec4dc663cd11",
+    "appToken": "bc0971b8-04df-4e72-8a3e-ec4dc663cd11",
+    "minWaitAfterLogin": 31,
   }
 ]
