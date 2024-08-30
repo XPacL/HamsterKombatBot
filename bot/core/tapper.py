@@ -229,7 +229,7 @@ class Tapper:
                 await self.check_daily_cipher(config=config)
 
                 # KEYS MINI-GAME
-                await self.check_daily_keys_mini_game(config=config)
+                # await self.check_daily_keys_mini_game(config=config)
 
                 # MINI-GAMES WITH PROMO CODES
                 await self.check_mini_games()
@@ -310,25 +310,26 @@ class Tapper:
                 await self.sleep(delay=3)
 
     async def check_daily_keys_mini_game(self, config):
-        if config.daily_keys_mini_game.is_claimed:
-            return
+        for daily_keys_mini_game in config.daily_keys_mini_game:
+            if daily_keys_mini_game.is_claimed:
+                continue
 
-        remain_seconds = config.daily_keys_mini_game.remain_seconds_to_next_attempt
-        if remain_seconds > 0:
-            logger.info(
-                f"{self.session_name} | Daily keys mini-game will be available after {remain_seconds:.0f} seconds")
+            remain_seconds = daily_keys_mini_game.remain_seconds_to_next_attempt
+            if remain_seconds > 0:
+                logger.info(
+                    f"{self.session_name} | Daily keys mini-game will be available after {remain_seconds:.0f} seconds")
             self.update_preferred_sleep(
                 delay=remain_seconds,
                 sleep_reason=SleepReason.WAIT_DAILY_KEYS_MINI_GAME
             )
             return
 
-        await self.web_client.start_keys_minigame()
-        await self.sleep(delay=randint(5, 15))
-        self.profile = await self.web_client.claim_daily_keys_minigame(
-            cipher=get_keys_mini_game_cipher(config, self.profile.id))
-        logger.info(f"{self.session_name} | Daily keys mini-game successfully finished | "
-                    f"Total keys: {self.profile.balance_keys}")
+            await self.web_client.start_keys_minigame()
+            await self.sleep(delay=randint(5, 15))
+            self.profile = await self.web_client.claim_daily_keys_minigame(
+                cipher=get_keys_mini_game_cipher(config, self.profile.id))
+            logger.info(f"{self.session_name} | Daily keys mini-game successfully finished | "
+                        f"Total keys: {self.profile.balance_keys}")
 
     async def check_mini_games(self):
         promo_states = await self.web_client.get_promos()
