@@ -216,11 +216,11 @@ class Promo:
 @dataclass
 class Config:
     daily_cipher: DailyCipher
-    daily_keys_mini_game: DailyKeysMiniGame
+    daily_keys_mini_game: list[DailyKeysMiniGame]
 
     def __init__(self, data: dict):
         self.daily_cipher = DailyCipher(data=data["dailyCipher"])
-        self.daily_keys_mini_game = DailyKeysMiniGame(data=data["dailyKeysMiniGame"])
+        self.daily_keys_mini_game = list(map(lambda x: DailyKeysMiniGame(data=x), data.get("dailyKeysMiniGame", [])))
 
 
 class SleepReason(Enum):
