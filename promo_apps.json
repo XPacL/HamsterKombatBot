@@ -1,5 +1,11 @@
 [
   {
+    "promoId": "112887b0-a8af-4eb2-ac63-d82df78283d9",
+    "appToken": "112887b0-a8af-4eb2-ac63-d82df78283d9",
+    "minWaitAfterLogin": 121,
+    "name": "Fluff Crusade"
+  },
+  {
     "promoId": "b4170868-cef0-424f-8eb9-be0622e8e8e3",
     "appToken": "d1690a07-3780-4068-810f-9b5bbf2931b2",
     "minWaitAfterLogin": 21,
