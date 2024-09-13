@@ -15,7 +15,7 @@ from bot.utils.client import Client
 
 class Requests(StrEnum):
     CONFIG = f"{API_URL}/clicker/config"
-    ME_TELEGRAM = f"{API_URL}/auth/me-telegram"
+    ME_TELEGRAM = f"{API_URL}/auth/account-info"
     TAP = f"{API_URL}/clicker/tap"
     BOOSTS_FOR_BUY = f"{API_URL}/clicker/boosts-for-buy"
     BUY_UPGRADE = f"{API_URL}/clicker/buy-upgrade"
