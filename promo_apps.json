@@ -1,5 +1,11 @@
 [
   {
+    "promoId": "04ebd6de-69b7-43d1-9c4b-04a6ca3305af",
+    "appToken": "04ebd6de-69b7-43d1-9c4b-04a6ca3305af",
+    "minWaitAfterLogin": 31,
+    "name": "Stone Age"
+  },
+  {
     "promoId": "112887b0-a8af-4eb2-ac63-d82df78283d9",
     "appToken": "112887b0-a8af-4eb2-ac63-d82df78283d9",
     "minWaitAfterLogin": 121,
